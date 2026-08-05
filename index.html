@@ -4,14 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard MONEV YNBDG 2026-2027</title>
+    <!-- Pustaka External -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
         :root {
             --primary: #2C3E50;
             --secondary: #18BC9C;
             --danger: #E74C3C;
             --warning: #F39C12;
+            --info: #3498DB;
+            --purple: #9B59B6;
             --light: #ECF0F1;
             --dark: #2C3E50;
         }
@@ -28,13 +35,21 @@
         th { background: #f8f9fa; font-weight: 600; }
         .danger { color: var(--danger); font-weight: bold; }
         .success { color: var(--secondary); font-weight: bold; }
-        .btn { background: var(--secondary); color: white; border: none; padding: 12px 15px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: background 0.3s; }
-        .btn:hover { background: #128f76; }
+        .btn { background: var(--secondary); color: white; border: none; padding: 12px 15px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 14px; font-weight: bold; transition: background 0.3s; margin-bottom: 10px;}
+        .btn:hover { opacity: 0.9; }
+        .btn-info { background: var(--info); }
+        .btn-purple { background: var(--purple); }
+        .btn-danger { background: var(--danger); }
         select, input { padding: 10px; width: 100%; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
         #reader { width: 100%; max-width: 400px; margin: auto; border: 2px dashed #ccc !important; border-radius: 8px; }
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
         .badge-divisi { background: #d1ecf1; color: #0c5460; }
         .badge-nondiv { background: #fff3cd; color: #856404; }
+        
+        /* Styling untuk checklist manual */
+        .checklist-box { max-height: 160px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 5px; background: #fafafa; margin-bottom: 15px; }
+        .checklist-item { margin-bottom: 8px; font-size: 14px; display: flex; align-items: center; }
+        .checklist-item input { width: auto; margin: 0 10px 0 0; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -43,22 +58,50 @@
         <p>Sistem Absensi & Penilaian Kuartil 2026-2027</p>
     </div>
 
-    <div class="container">
-        <div class="grid">
-            <!-- Scanner Card -->
-            <div class="card">
-                <h3>📷 Scanner QR Kehadiran</h3>
-                <div id="reader"></div>
-                <div id="scan-result" style="margin-top:15px; font-weight:bold; text-align:center; color:var(--primary);"></div>
-                <div style="margin-top:15px;">
-                    <label style="font-weight:bold; font-size:14px;">Pilih Kegiatan (Admin):</label>
-                    <select id="kegiatan-select"></select>
-                    
-                    <label style="font-weight:bold; font-size:14px;">Input Manual ID Member:</label>
-                    <input type="text" id="manual-id" placeholder="Contoh: M001 (Jika kamera error)">
-                    
-                    <button class="btn" onclick="simpanKehadiran()">Simpan Kehadiran & Poin</button>
+    <div class="container" id="dashboard-content">
+        
+        <!-- Panel Admin: Manajemen Data -->
+        <div class="card" style="margin-bottom: 20px;" data-html2canvas-ignore="true">
+            <h3>⚙️ Pengaturan & Manajemen Data (Admin)</h3>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
+                
+                <div style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                    <label style="font-size:14px; font-weight:bold; color:var(--dark);">1. Update Database Kepengurusan</label>
+                    <p style="font-size:12px; color:gray; margin-top:5px;">Upload file .xlsx atau .csv. <br>Wajib menggunakan header kolom: <b>ID, Nama, Tipe</b> (isi tipe dengan 'Divisi' atau 'Non-Divisi').</p>
+                    <input type="file" id="file-upload" accept=".xlsx, .csv, .xls" style="padding:5px; background:white;" onchange="importExcel(event)">
                 </div>
+
+                <div style="flex: 1; min-width: 250px; display:flex; flex-direction:column;">
+                    <label style="font-size:14px; font-weight:bold; color:var(--dark); margin-bottom:10px;">2. Ekspor & Reset Data</label>
+                    <button class="btn btn-info" onclick="exportExcel()">⬇️ Unduh Rekap Data (Excel)</button>
+                    <button class="btn btn-purple" onclick="exportPDF()">📄 Unggah PDF (Screenshot Dashboard)</button>
+                    <button class="btn btn-danger" onclick="resetPoints()">🔄 Reset Poin (Kuartil Baru)</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Scanner & Input Card -->
+            <div class="card" data-html2canvas-ignore="true">
+                <h3>📷 Input Kehadiran & Poin</h3>
+                
+                <label style="font-weight:bold; font-size:14px;">Pilih Kegiatan yang Sedang Berjalan:</label>
+                <select id="kegiatan-select"></select>
+
+                <div style="border-bottom: 1px solid #eee; margin: 20px 0;"></div>
+
+                <h4 style="margin:0 0 10px 0; color:var(--primary); font-size: 15px;">Opsi 1: Menggunakan Scanner</h4>
+                <div id="reader"></div>
+                <div id="scan-result" style="margin-top:10px; font-weight:bold; text-align:center; color:var(--primary);"></div>
+                
+                <div style="border-bottom: 1px solid #eee; margin: 20px 0;"></div>
+
+                <h4 style="margin:0 0 10px 0; color:var(--primary); font-size: 15px;">Opsi 2: Input Manual (Tanpa Barcode)</h4>
+                <p style="font-size: 11px; color: gray; margin-top:-5px;">Centang maksimal 10 data sekaligus.</p>
+                <div class="checklist-box" id="manual-checklist">
+                    <!-- Checkbox member akan di-render di sini oleh JavaScript -->
+                </div>
+                <button class="btn" onclick="simpanKehadiranManual()">Simpan Kehadiran Checklist</button>
             </div>
 
             <!-- Leaderboard Card -->
@@ -99,7 +142,7 @@
     </div>
 
     <script>
-        // Data Kegiatan sesuai Dokumen MONEV YNBDG 2026-2027
+        // Data Kegiatan
         const kegiatan = [
             { id: 1, nama: "Narasumber Kelas/Event", poin: 9 },
             { id: 2, nama: "Panitia KEY9", poin: 6 },
@@ -114,7 +157,7 @@
             { id: 11, nama: "Peserta Program Sport", poin: 1 }
         ];
 
-        // Database Simulasi
+        // Default Data jika belum ada di localStorage
         const defaultMembers = [
             { id: "M001", nama: "Alief Slamet", tipe: "Divisi", poin: 12, hadir: 4 },
             { id: "M002", nama: "Bobi", tipe: "Divisi", poin: 4, hadir: 2 },
@@ -126,7 +169,6 @@
         ];
 
         let members = JSON.parse(localStorage.getItem('ynbdg_members')) || defaultMembers;
-        let currentScannedId = "";
 
         // Inisialisasi Dropdown Kegiatan
         const select = document.getElementById('kegiatan-select');
@@ -137,51 +179,228 @@
             select.appendChild(opt);
         });
 
+        // 1. FUNGSI UPDATE DASHBOARD UTAMA
         function updateDashboard() {
+            // Update Leaderboard
             const sorted = [...members].sort((a, b) => b.poin - a.poin);
-            
             const tbodyLeader = document.querySelector('#leaderboard-table tbody');
             tbodyLeader.innerHTML = '';
             sorted.slice(0,3).forEach((m, i) => {
                 const badgeClass = m.tipe === 'Divisi' ? 'badge-divisi' : 'badge-nondiv';
                 tbodyLeader.innerHTML += `<tr>
-                    <td><strong>${i+1}</strong></td>
-                    <td>${m.nama}</td>
+                    <td><strong>${i+1}</strong></td><td>${m.nama}</td>
                     <td><span class="badge ${badgeClass}">${m.tipe}</span></td>
                     <td class="success">+${m.poin}</td>
                 </tr>`;
             });
 
+            // Update Evaluasi Divisi
             const tbodyDivisi = document.querySelector('#warning-divisi-table tbody');
             tbodyDivisi.innerHTML = '';
             members.filter(m => m.tipe === 'Divisi' && m.poin < 8).forEach(m => {
                 tbodyDivisi.innerHTML += `<tr>
-                    <td>${m.nama}</td>
-                    <td class="danger">${m.poin}</td>
+                    <td>${m.nama}</td><td class="danger">${m.poin}</td>
                     <td style="color:gray;">Kurang ${8 - m.poin} poin</td>
                 </tr>`;
             });
 
+            // Update Evaluasi Non-Divisi
             const tbodyNonDiv = document.querySelector('#warning-nondiv-table tbody');
             tbodyNonDiv.innerHTML = '';
             members.filter(m => m.tipe === 'Non-Divisi' && m.poin < 6).forEach(m => {
                 tbodyNonDiv.innerHTML += `<tr>
-                    <td>${m.nama}</td>
-                    <td class="danger">${m.poin}</td>
+                    <td>${m.nama}</td><td class="danger">${m.poin}</td>
                     <td style="color:gray;">Kurang ${6 - m.poin} poin</td>
                 </tr>`;
             });
 
             updateChart();
+            renderChecklist();
             localStorage.setItem('ynbdg_members', JSON.stringify(members));
         }
 
+        // 2. FUNGSI RENDER CHECKLIST (INPUT MANUAL)
+        function renderChecklist() {
+            const container = document.getElementById('manual-checklist');
+            container.innerHTML = '';
+            
+            // Sort nama alphabet
+            const sortedMembers = [...members].sort((a,b) => a.nama.localeCompare(b.nama));
+            
+            sortedMembers.forEach(m => {
+                const label = document.createElement('label');
+                label.className = 'checklist-item';
+                label.innerHTML = `<input type="checkbox" class="cb-member" value="${m.id}"> ${m.nama} <span style="color:gray; font-size:11px; margin-left:5px;">(${m.tipe})</span>`;
+                container.appendChild(label);
+            });
+
+            // Batasi ceklis maksimal 10
+            const checkboxes = document.querySelectorAll('.cb-member');
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', function() {
+                    const checkedCount = document.querySelectorAll('.cb-member:checked').length;
+                    if (checkedCount > 10) {
+                        this.checked = false;
+                        alert("Maksimal 10 member dalam satu kali input!");
+                    }
+                });
+            });
+        }
+
+        // 3. FUNGSI SIMPAN KEHADIRAN (CHECKLIST MANUAL)
+        function simpanKehadiranManual() {
+            const checkedBoxes = document.querySelectorAll('.cb-member:checked');
+            if (checkedBoxes.length === 0) {
+                alert("Pilih minimal 1 member dari daftar!");
+                return;
+            }
+
+            const poinTambah = parseInt(document.getElementById('kegiatan-select').value);
+            const namaKegiatan = document.getElementById('kegiatan-select').options[document.getElementById('kegiatan-select').selectedIndex].text;
+            
+            let successNames = [];
+            checkedBoxes.forEach(cb => {
+                const memberIndex = members.findIndex(m => m.id === cb.value);
+                if(memberIndex !== -1) {
+                    members[memberIndex].poin += poinTambah;
+                    members[memberIndex].hadir += 1;
+                    successNames.push(members[memberIndex].nama);
+                }
+                cb.checked = false; // reset checklist
+            });
+
+            updateDashboard();
+            alert(`✅ BERHASIL!\nKegiatan: ${namaKegiatan}\n\nPoin berhasil ditambahkan untuk ${successNames.length} member:\n- ${successNames.join('\n- ')}`);
+        }
+
+        // 4. FUNGSI SIMPAN KEHADIRAN (VIA SCANNER)
+        function onScanSuccess(decodedText, decodedResult) {
+            const id = decodedText.trim();
+            const poinTambah = parseInt(document.getElementById('kegiatan-select').value);
+            const namaKegiatan = document.getElementById('kegiatan-select').options[document.getElementById('kegiatan-select').selectedIndex].text;
+            
+            const memberIndex = members.findIndex(m => m.id.toUpperCase() === id.toUpperCase());
+            if(memberIndex !== -1) {
+                members[memberIndex].poin += poinTambah;
+                members[memberIndex].hadir += 1;
+                updateDashboard();
+                
+                document.getElementById('scan-result').innerText = `✅ Terscan: ${members[memberIndex].nama} (+${poinTambah} Poin)`;
+                setTimeout(() => { document.getElementById('scan-result').innerText = ""; }, 3000);
+            } else {
+                alert(`❌ GAGAL: Barcode dengan ID "${id}" tidak ditemukan di database.`);
+            }
+        }
+        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+        html5QrcodeScanner.render(onScanSuccess);
+
+        // 5. FUNGSI IMPORT DATABASE (EXCEL/CSV)
+        function importExcel(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheet = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheet];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    if (jsonData.length === 0) throw new Error("File kosong");
+                    if (!jsonData[0].hasOwnProperty('ID') || !jsonData[0].hasOwnProperty('Nama') || !jsonData[0].hasOwnProperty('Tipe')) {
+                        throw new Error("Format kolom salah. Pastikan baris pertama adalah: ID, Nama, Tipe");
+                    }
+
+                    // Format data ke struktur lokal
+                    let newMembers = [];
+                    jsonData.forEach(row => {
+                        newMembers.push({
+                            id: String(row.ID).trim(),
+                            nama: row.Nama || "Tanpa Nama",
+                            tipe: row.Tipe || "Non-Divisi",
+                            poin: 0,
+                            hadir: 0
+                        });
+                    });
+
+                    members = newMembers;
+                    updateDashboard();
+                    alert(`✅ Database berhasil diperbarui dengan ${members.length} member baru!\nData poin di-reset ke 0 untuk struktur baru ini.`);
+                } catch (error) {
+                    alert("❌ Gagal mengimpor file: " + error.message);
+                }
+                event.target.value = ""; // Reset input file
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 6. FUNGSI EXPORT REKAP (EXCEL)
+        function exportExcel() {
+            if(members.length === 0) { alert("Tidak ada data untuk diunduh!"); return; }
+            
+            // Siapkan data yang akan di-export (tanpa index internal)
+            const exportData = members.map(m => ({
+                "ID Member": m.id,
+                "Nama Lengkap": m.nama,
+                "Status Keanggotaan": m.tipe,
+                "Total Kehadiran": m.hadir,
+                "Total Poin Kuartil": m.poin
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Rekap MONEV");
+            XLSX.writeFile(wb, "Rekap_Data_MONEV_YNBDG.xlsx");
+        }
+
+        // 7. FUNGSI UNDUH PDF (SCREENSHOT)
+        function exportPDF() {
+            // Scroll ke paling atas agar canvas tidak terpotong
+            window.scrollTo(0,0); 
+            const dashboard = document.getElementById('dashboard-content');
+            
+            // Tombol diubah sementara agar menunjukkan indikator loading
+            alert("Mempersiapkan PDF, mohon tunggu sebentar...");
+            
+            html2canvas(dashboard, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
+                pdf.save("Laporan_Dashboard_MONEV.pdf");
+            }).catch(err => {
+                alert("Gagal membuat PDF: " + err);
+            });
+        }
+
+        // 8. FUNGSI RESET POIN KUARTIL
+        function resetPoints() {
+            if(confirm("⚠️ PERINGATAN!\n\nApakah Anda yakin ingin me-reset SEMUA POIN dan KEHADIRAN menjadi 0?\n\n*Catatan: Nama dan ID Member tidak akan terhapus. Fitur ini digunakan hanya saat pergantian kuartil penilaian.")) {
+                members.forEach(m => {
+                    m.poin = 0;
+                    m.hadir = 0;
+                });
+                updateDashboard();
+                alert("✅ Semua poin berhasil di-reset menjadi 0.");
+            }
+        }
+
+        // CHART JS INITIALIZATION
         let chartInstance = null;
         function updateChart() {
             const ctx = document.getElementById('attendanceChart').getContext('2d');
-            const labels = members.map(m => m.nama.split(' ')[0]);
+            // Menampilkan top 10 member di grafik agar tidak terlalu berdesakan jika data banyak
+            const topMembersForChart = [...members].sort((a,b) => b.hadir - a.hadir).slice(0,10);
+            
+            const labels = topMembersForChart.map(m => m.nama.split(' ')[0]);
             const totalKegiatanAsumsi = 15; 
-            const dataPersen = members.map(m => Math.min(100, Math.round((m.hadir / totalKegiatanAsumsi) * 100))); 
+            const dataPersen = topMembersForChart.map(m => Math.min(100, Math.round((m.hadir / totalKegiatanAsumsi) * 100))); 
 
             if(chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, {
@@ -203,45 +422,7 @@
             });
         }
 
-        function onScanSuccess(decodedText, decodedResult) {
-            currentScannedId = decodedText;
-            document.getElementById('scan-result').innerText = "✅ ID Ter-scan: " + decodedText;
-            document.getElementById('manual-id').value = decodedText;
-        }
-
-        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-        html5QrcodeScanner.render(onScanSuccess);
-
-        function simpanKehadiran() {
-            const id = document.getElementById('manual-id').value.trim();
-            const poinTambah = parseInt(document.getElementById('kegiatan-select').value);
-            const namaKegiatan = document.getElementById('kegiatan-select').options[document.getElementById('kegiatan-select').selectedIndex].text;
-            
-            if(!id) {
-                alert("Silakan scan QR Code atau input ID member secara manual!");
-                return;
-            }
-
-            const memberIndex = members.findIndex(m => m.id.toUpperCase() === id.toUpperCase());
-            if(memberIndex !== -1) {
-                members[memberIndex].poin += poinTambah;
-                members[memberIndex].hadir += 1;
-                alert(`✅ BERHASIL!
-
-Nama: ${members[memberIndex].nama}
-Kegiatan: ${namaKegiatan}
-Total Poin Sekarang: ${members[memberIndex].poin}`);
-                
-                document.getElementById('scan-result').innerText = "";
-                document.getElementById('manual-id').value = "";
-                currentScannedId = "";
-                
-                updateDashboard();
-            } else {
-                alert(`❌ GAGAL: ID Member "${id}" tidak ditemukan di sistem.`);
-            }
-        }
-
+        // Inisialisasi awal saat load
         updateDashboard();
     </script>
 </body>
