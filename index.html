@@ -309,25 +309,57 @@
                     const jsonData = XLSX.utils.sheet_to_json(worksheet);
                     
                     if (jsonData.length === 0) throw new Error("File kosong");
-                    if (!jsonData[0].hasOwnProperty('ID') || !jsonData[0].hasOwnProperty('Nama') || !jsonData[0].hasOwnProperty('Tipe')) {
-                        throw new Error("Format kolom salah. Pastikan baris pertama adalah: ID, Nama, Tipe");
-                    }
 
-                    // Format data ke struktur lokal
+                    // Format data ke struktur lokal menyesuaikan format CSV YNBDG
                     let newMembers = [];
+                    let errorRows = 0;
+
                     jsonData.forEach(row => {
+                        // 1. Ambil ID dari "Column 1"
+                        let rawId = row['Column 1'] || row['ID'];
+                        if (!rawId) {
+                            errorRows++;
+                            return; // skip jika baris kosong / tidak valid
+                        }
+
+                        // Format angka '1' menjadi 'M001' agar selaras untuk pembuatan barcode
+                        let idFormatted = String(rawId).trim();
+                        if (/^\d+$/.test(idFormatted)) {
+                            idFormatted = 'M' + idFormatted.padStart(3, '0');
+                        }
+
+                        // 2. Ambil Nama dari "Nama Lengkap"
+                        let namaMember = row['Nama Lengkap'] || row['Nama'] || "Tanpa Nama";
+
+                        // 3. Tentukan Tipe Divisi / Non-Divisi dari "Homebase"
+                        let tipeMember = "Divisi"; // Default
+                        let homebase = String(row['Homebase'] || '').toLowerCase();
+                        
+                        if (homebase.includes('non-divisi') || homebase.includes('non divisi')) {
+                            tipeMember = "Non-Divisi";
+                        }
+
                         newMembers.push({
-                            id: String(row.ID).trim(),
-                            nama: row.Nama || "Tanpa Nama",
-                            tipe: row.Tipe || "Non-Divisi",
+                            id: idFormatted,
+                            nama: namaMember,
+                            tipe: tipeMember,
                             poin: 0,
                             hadir: 0
                         });
                     });
 
+                    if (newMembers.length === 0) {
+                        throw new Error("Format tidak sesuai. Pastikan ada 'Column 1', 'Nama Lengkap', dan 'Homebase'.");
+                    }
+
+                    // MENGGANTIKAN data lama di memori dengan database baru
                     members = newMembers;
                     updateDashboard();
-                    alert(`✅ Database berhasil diperbarui dengan ${members.length} member baru!\nData poin di-reset ke 0 untuk struktur baru ini.`);
+                    
+                    let alertMsg = `✅ Database berhasil diperbarui dengan ${members.length} member baru!\nData lama telah digantikan dan poin dimulai dari 0.`;
+                    if (errorRows > 0) alertMsg += `\n(Catatan: Ada ${errorRows} baris yang dilewati karena kosong/tidak punya ID)`;
+                    alert(alertMsg);
+
                 } catch (error) {
                     alert("❌ Gagal mengimpor file: " + error.message);
                 }
