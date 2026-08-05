@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard MONEV YNBDG 2026-2027</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        :root {
+            --primary: #2C3E50;
+            --secondary: #18BC9C;
+            --danger: #E74C3C;
+            --warning: #F39C12;
+            --light: #ECF0F1;
+            --dark: #2C3E50;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; color: #333; }
+        .navbar { background-color: var(--primary); color: white; padding: 15px 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .navbar h1 { margin: 0; font-size: 24px; }
+        .navbar p { margin: 5px 0 0; font-size: 14px; opacity: 0.8; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card h3 { margin-top: 0; color: var(--primary); border-bottom: 2px solid var(--light); padding-bottom: 10px; font-size: 18px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--light); }
+        th { background: #f8f9fa; font-weight: 600; }
+        .danger { color: var(--danger); font-weight: bold; }
+        .success { color: var(--secondary); font-weight: bold; }
+        .btn { background: var(--secondary); color: white; border: none; padding: 12px 15px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: background 0.3s; }
+        .btn:hover { background: #128f76; }
+        select, input { padding: 10px; width: 100%; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        #reader { width: 100%; max-width: 400px; margin: auto; border: 2px dashed #ccc !important; border-radius: 8px; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .badge-divisi { background: #d1ecf1; color: #0c5460; }
+        .badge-nondiv { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Dashboard MONEV Rijal YNBDG</h1>
+        <p>Sistem Absensi & Penilaian Kuartil 2026-2027</p>
+    </div>
+
+    <div class="container">
+        <div class="grid">
+            <!-- Scanner Card -->
+            <div class="card">
+                <h3>📷 Scanner QR Kehadiran</h3>
+                <div id="reader"></div>
+                <div id="scan-result" style="margin-top:15px; font-weight:bold; text-align:center; color:var(--primary);"></div>
+                <div style="margin-top:15px;">
+                    <label style="font-weight:bold; font-size:14px;">Pilih Kegiatan (Admin):</label>
+                    <select id="kegiatan-select"></select>
+                    
+                    <label style="font-weight:bold; font-size:14px;">Input Manual ID Member:</label>
+                    <input type="text" id="manual-id" placeholder="Contoh: M001 (Jika kamera error)">
+                    
+                    <button class="btn" onclick="simpanKehadiran()">Simpan Kehadiran & Poin</button>
+                </div>
+            </div>
+
+            <!-- Leaderboard Card -->
+            <div class="card">
+                <h3>🏆 Top 3 Leaderboard Member</h3>
+                <table id="leaderboard-table">
+                    <thead><tr><th>#</th><th>Nama</th><th>Tipe</th><th>Poin</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Chart Card -->
+            <div class="card" style="grid-column: span 1;">
+                <h3>📊 Persentase Kehadiran</h3>
+                <canvas id="attendanceChart"></canvas>
+            </div>
+
+            <!-- Warning Card: Divisi < 8 points -->
+            <div class="card">
+                <h3>⚠️ Evaluasi Member Divisi ( < 8 Poin)</h3>
+                <p style="font-size:12px; color:gray; margin-top:-5px;">Membutuhkan Follow Up Kadiv / Sekjen</p>
+                <table id="warning-divisi-table">
+                    <thead><tr><th>Nama</th><th>Poin Saat Ini</th><th>Kekurangan</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Warning Card: Non-Divisi < 6 points -->
+            <div class="card">
+                <h3>⚠️ Evaluasi Member Non-Divisi ( < 6 Poin)</h3>
+                <p style="font-size:12px; color:gray; margin-top:-5px;">Membutuhkan Follow Up Komitmen</p>
+                <table id="warning-nondiv-table">
+                    <thead><tr><th>Nama</th><th>Poin Saat Ini</th><th>Kekurangan</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Kegiatan sesuai Dokumen MONEV YNBDG 2026-2027
+        const kegiatan = [
+            { id: 1, nama: "Narasumber Kelas/Event", poin: 9 },
+            { id: 2, nama: "Panitia KEY9", poin: 6 },
+            { id: 3, nama: "Peserta KEY9 (Muroja'ah)", poin: 3 },
+            { id: 4, nama: "Panitia Event YNID", poin: 6 },
+            { id: 5, nama: "Peserta Event YNID", poin: 3 },
+            { id: 6, nama: "Panitia Event YNBDG (Ruang Jeda/Meet Up)", poin: 4 },
+            { id: 7, nama: "Peserta Event YNBDG", poin: 2 },
+            { id: 8, nama: "PJ Program MD (Weekend With Member)", poin: 4 },
+            { id: 9, nama: "Peserta Program MD", poin: 2 },
+            { id: 10, nama: "PJ Program Sport", poin: 2 },
+            { id: 11, nama: "Peserta Program Sport", poin: 1 }
+        ];
+
+        // Database Simulasi
+        const defaultMembers = [
+            { id: "M001", nama: "Alief Slamet", tipe: "Divisi", poin: 12, hadir: 4 },
+            { id: "M002", nama: "Bobi", tipe: "Divisi", poin: 4, hadir: 2 },
+            { id: "M003", nama: "Cahyo", tipe: "Divisi", poin: 7, hadir: 3 },
+            { id: "M004", nama: "Deni", tipe: "Non-Divisi", poin: 9, hadir: 5 },
+            { id: "M005", nama: "Eko", tipe: "Non-Divisi", poin: 3, hadir: 1 },
+            { id: "M006", nama: "Fajar", tipe: "Non-Divisi", poin: 5, hadir: 2 },
+            { id: "M007", nama: "Ghilman", tipe: "Divisi", poin: 10, hadir: 4 }
+        ];
+
+        let members = JSON.parse(localStorage.getItem('ynbdg_members')) || defaultMembers;
+        let currentScannedId = "";
+
+        // Inisialisasi Dropdown Kegiatan
+        const select = document.getElementById('kegiatan-select');
+        kegiatan.forEach(k => {
+            const opt = document.createElement('option');
+            opt.value = k.poin;
+            opt.textContent = `${k.nama} (+${k.poin} Poin)`;
+            select.appendChild(opt);
+        });
+
+        function updateDashboard() {
+            const sorted = [...members].sort((a, b) => b.poin - a.poin);
+            
+            const tbodyLeader = document.querySelector('#leaderboard-table tbody');
+            tbodyLeader.innerHTML = '';
+            sorted.slice(0,3).forEach((m, i) => {
+                const badgeClass = m.tipe === 'Divisi' ? 'badge-divisi' : 'badge-nondiv';
+                tbodyLeader.innerHTML += `<tr>
+                    <td><strong>${i+1}</strong></td>
+                    <td>${m.nama}</td>
+                    <td><span class="badge ${badgeClass}">${m.tipe}</span></td>
+                    <td class="success">+${m.poin}</td>
+                </tr>`;
+            });
+
+            const tbodyDivisi = document.querySelector('#warning-divisi-table tbody');
+            tbodyDivisi.innerHTML = '';
+            members.filter(m => m.tipe === 'Divisi' && m.poin < 8).forEach(m => {
+                tbodyDivisi.innerHTML += `<tr>
+                    <td>${m.nama}</td>
+                    <td class="danger">${m.poin}</td>
+                    <td style="color:gray;">Kurang ${8 - m.poin} poin</td>
+                </tr>`;
+            });
+
+            const tbodyNonDiv = document.querySelector('#warning-nondiv-table tbody');
+            tbodyNonDiv.innerHTML = '';
+            members.filter(m => m.tipe === 'Non-Divisi' && m.poin < 6).forEach(m => {
+                tbodyNonDiv.innerHTML += `<tr>
+                    <td>${m.nama}</td>
+                    <td class="danger">${m.poin}</td>
+                    <td style="color:gray;">Kurang ${6 - m.poin} poin</td>
+                </tr>`;
+            });
+
+            updateChart();
+            localStorage.setItem('ynbdg_members', JSON.stringify(members));
+        }
+
+        let chartInstance = null;
+        function updateChart() {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            const labels = members.map(m => m.nama.split(' ')[0]);
+            const totalKegiatanAsumsi = 15; 
+            const dataPersen = members.map(m => Math.min(100, Math.round((m.hadir / totalKegiatanAsumsi) * 100))); 
+
+            if(chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Persentase Kehadiran (%)',
+                        data: dataPersen,
+                        backgroundColor: '#18BC9C',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, max: 100 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            currentScannedId = decodedText;
+            document.getElementById('scan-result').innerText = "✅ ID Ter-scan: " + decodedText;
+            document.getElementById('manual-id').value = decodedText;
+        }
+
+        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+        html5QrcodeScanner.render(onScanSuccess);
+
+        function simpanKehadiran() {
+            const id = document.getElementById('manual-id').value.trim();
+            const poinTambah = parseInt(document.getElementById('kegiatan-select').value);
+            const namaKegiatan = document.getElementById('kegiatan-select').options[document.getElementById('kegiatan-select').selectedIndex].text;
+            
+            if(!id) {
+                alert("Silakan scan QR Code atau input ID member secara manual!");
+                return;
+            }
+
+            const memberIndex = members.findIndex(m => m.id.toUpperCase() === id.toUpperCase());
+            if(memberIndex !== -1) {
+                members[memberIndex].poin += poinTambah;
+                members[memberIndex].hadir += 1;
+                alert(`✅ BERHASIL!
+
+Nama: ${members[memberIndex].nama}
+Kegiatan: ${namaKegiatan}
+Total Poin Sekarang: ${members[memberIndex].poin}`);
+                
+                document.getElementById('scan-result').innerText = "";
+                document.getElementById('manual-id').value = "";
+                currentScannedId = "";
+                
+                updateDashboard();
+            } else {
+                alert(`❌ GAGAL: ID Member "${id}" tidak ditemukan di sistem.`);
+            }
+        }
+
+        updateDashboard();
+    </script>
+</body>
+</html>
