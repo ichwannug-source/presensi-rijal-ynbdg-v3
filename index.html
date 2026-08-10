@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard MONEV YNBDG 2026-2027</title>
-    <!-- Pustaka External -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Pustaka External (Tanpa Chart.js karena sudah diganti Tabel) -->
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -21,6 +20,9 @@
             --purple: #9B59B6;
             --light: #ECF0F1;
             --dark: #2C3E50;
+            --gold: #FFD700;
+            --silver: #C0C0C0;
+            --bronze: #CD7F32;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; color: #333; }
         .navbar { background-color: var(--primary); color: white; padding: 15px 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -46,7 +48,6 @@
         .badge-divisi { background: #d1ecf1; color: #0c5460; }
         .badge-nondiv { background: #fff3cd; color: #856404; }
         
-        /* Styling untuk checklist manual */
         .checklist-box { max-height: 160px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 5px; background: #fafafa; margin-bottom: 15px; }
         .checklist-item { margin-bottom: 8px; font-size: 14px; display: flex; align-items: center; }
         .checklist-item input { width: auto; margin: 0 10px 0 0; cursor: pointer; }
@@ -66,8 +67,8 @@
             <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
                 
                 <div style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 5px;">
-                    <label style="font-size:14px; font-weight:bold; color:var(--dark);">1. Update Database Kepengurusan</label>
-                    <p style="font-size:12px; color:gray; margin-top:5px;">Upload file .xlsx atau .csv. <br>Wajib menggunakan header kolom: <b>ID, Nama, Tipe</b> (isi tipe dengan 'Divisi' atau 'Non-Divisi').</p>
+                    <label style="font-size:14px; font-weight:bold; color:var(--dark);">1. Update Database Kepengurusan (.csv)</label>
+                    <p style="font-size:12px; color:gray; margin-top:5px;">Upload file .csv dengan header minimal: <b>Column 1, Nama Lengkap, Homebase</b>.</p>
                     <input type="file" id="file-upload" accept=".xlsx, .csv, .xls" style="padding:5px; background:white;" onchange="importExcel(event)">
                 </div>
 
@@ -99,24 +100,27 @@
                 <h4 style="margin:0 0 10px 0; color:var(--primary); font-size: 15px;">Opsi 2: Input Manual (Tanpa Barcode)</h4>
                 <p style="font-size: 11px; color: gray; margin-top:-5px;">Centang maksimal 10 data sekaligus.</p>
                 <div class="checklist-box" id="manual-checklist">
-                    <!-- Checkbox member akan di-render di sini oleh JavaScript -->
+                    <!-- Checkbox member akan di-render di sini -->
                 </div>
                 <button class="btn" onclick="simpanKehadiranManual()">Simpan Kehadiran Checklist</button>
             </div>
 
-            <!-- Leaderboard Card -->
+            <!-- Leaderboard Poin Card -->
             <div class="card">
-                <h3>🏆 Top 3 Leaderboard Member</h3>
+                <h3>🏆 Top 10 Leaderboard Poin</h3>
                 <table id="leaderboard-table">
                     <thead><tr><th>#</th><th>Nama</th><th>Tipe</th><th>Poin</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
 
-            <!-- Chart Card -->
+            <!-- Leaderboard Persentase Card (Menggantikan Chart) -->
             <div class="card" style="grid-column: span 1;">
-                <h3>📊 Persentase Kehadiran</h3>
-                <canvas id="attendanceChart"></canvas>
+                <h3>📊 Top 10 Persentase Kehadiran</h3>
+                <table id="attendance-table">
+                    <thead><tr><th>#</th><th>Nama</th><th>Tipe</th><th>Persentase</th></tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
 
             <!-- Warning Card: Divisi < 8 points -->
@@ -157,7 +161,7 @@
             { id: 11, nama: "Peserta Program Sport", poin: 1 }
         ];
 
-        // Default Data jika belum ada di localStorage
+        // Default Data Simulasi
         const defaultMembers = [
             { id: "M001", nama: "Alief Slamet", tipe: "Divisi", poin: 12, hadir: 4 },
             { id: "M002", nama: "Bobi", tipe: "Divisi", poin: 4, hadir: 2 },
@@ -170,7 +174,7 @@
 
         let members = JSON.parse(localStorage.getItem('ynbdg_members')) || defaultMembers;
 
-        // Inisialisasi Dropdown Kegiatan
+        // Inisialisasi Dropdown
         const select = document.getElementById('kegiatan-select');
         kegiatan.forEach(k => {
             const opt = document.createElement('option');
@@ -181,20 +185,51 @@
 
         // 1. FUNGSI UPDATE DASHBOARD UTAMA
         function updateDashboard() {
-            // Update Leaderboard
-            const sorted = [...members].sort((a, b) => b.poin - a.poin);
+            // A. Update Top 10 Leaderboard (Berdasarkan Poin)
+            const sortedByPoin = [...members].sort((a, b) => b.poin - a.poin);
             const tbodyLeader = document.querySelector('#leaderboard-table tbody');
             tbodyLeader.innerHTML = '';
-            sorted.slice(0,3).forEach((m, i) => {
+            
+            sortedByPoin.slice(0, 10).forEach((m, i) => {
                 const badgeClass = m.tipe === 'Divisi' ? 'badge-divisi' : 'badge-nondiv';
+                
+                let rankDisplay = i + 1;
+                let nameDisplay = m.nama;
+
+                // Modifikasi Top 3
+                if (i === 0) { rankDisplay = '🥇 1'; nameDisplay = `<strong>${m.nama}</strong>`; }
+                else if (i === 1) { rankDisplay = '🥈 2'; nameDisplay = `<strong>${m.nama}</strong>`; }
+                else if (i === 2) { rankDisplay = '🥉 3'; nameDisplay = `<strong>${m.nama}</strong>`; }
+
                 tbodyLeader.innerHTML += `<tr>
-                    <td><strong>${i+1}</strong></td><td>${m.nama}</td>
+                    <td><strong>${rankDisplay}</strong></td>
+                    <td>${nameDisplay}</td>
                     <td><span class="badge ${badgeClass}">${m.tipe}</span></td>
                     <td class="success">+${m.poin}</td>
                 </tr>`;
             });
 
-            // Update Evaluasi Divisi
+            // B. Update Top 10 Persentase Kehadiran (Menggantikan Chart)
+            const totalKegiatanAsumsi = 15; // Asumsi 100% kehadiran = mengikuti 15 kegiatan
+            const sortedByHadir = [...members].sort((a, b) => b.hadir - a.hadir);
+            const tbodyAttendance = document.querySelector('#attendance-table tbody');
+            tbodyAttendance.innerHTML = '';
+            
+            sortedByHadir.slice(0, 10).forEach((m, i) => {
+                const persentase = Math.min(100, Math.round((m.hadir / totalKegiatanAsumsi) * 100));
+                const badgeClass = m.tipe === 'Divisi' ? 'badge-divisi' : 'badge-nondiv';
+                
+                let color = persentase >= 75 ? 'var(--secondary)' : (persentase >= 40 ? 'var(--warning)' : 'var(--danger)');
+
+                tbodyAttendance.innerHTML += `<tr>
+                    <td><strong>${i + 1}</strong></td>
+                    <td>${m.nama}</td>
+                    <td><span class="badge ${badgeClass}">${m.tipe}</span></td>
+                    <td style="font-weight:bold; color:${color};">${persentase}%</td>
+                </tr>`;
+            });
+
+            // C. Update Evaluasi Divisi
             const tbodyDivisi = document.querySelector('#warning-divisi-table tbody');
             tbodyDivisi.innerHTML = '';
             members.filter(m => m.tipe === 'Divisi' && m.poin < 8).forEach(m => {
@@ -204,7 +239,7 @@
                 </tr>`;
             });
 
-            // Update Evaluasi Non-Divisi
+            // D. Update Evaluasi Non-Divisi
             const tbodyNonDiv = document.querySelector('#warning-nondiv-table tbody');
             tbodyNonDiv.innerHTML = '';
             members.filter(m => m.tipe === 'Non-Divisi' && m.poin < 6).forEach(m => {
@@ -214,7 +249,6 @@
                 </tr>`;
             });
 
-            updateChart();
             renderChecklist();
             localStorage.setItem('ynbdg_members', JSON.stringify(members));
         }
@@ -224,9 +258,7 @@
             const container = document.getElementById('manual-checklist');
             container.innerHTML = '';
             
-            // Sort nama alphabet
             const sortedMembers = [...members].sort((a,b) => a.nama.localeCompare(b.nama));
-            
             sortedMembers.forEach(m => {
                 const label = document.createElement('label');
                 label.className = 'checklist-item';
@@ -234,7 +266,6 @@
                 container.appendChild(label);
             });
 
-            // Batasi ceklis maksimal 10
             const checkboxes = document.querySelectorAll('.cb-member');
             checkboxes.forEach(cb => {
                 cb.addEventListener('change', function() {
@@ -250,10 +281,7 @@
         // 3. FUNGSI SIMPAN KEHADIRAN (CHECKLIST MANUAL)
         function simpanKehadiranManual() {
             const checkedBoxes = document.querySelectorAll('.cb-member:checked');
-            if (checkedBoxes.length === 0) {
-                alert("Pilih minimal 1 member dari daftar!");
-                return;
-            }
+            if (checkedBoxes.length === 0) { alert("Pilih minimal 1 member dari daftar!"); return; }
 
             const poinTambah = parseInt(document.getElementById('kegiatan-select').value);
             const namaKegiatan = document.getElementById('kegiatan-select').options[document.getElementById('kegiatan-select').selectedIndex].text;
@@ -266,7 +294,7 @@
                     members[memberIndex].hadir += 1;
                     successNames.push(members[memberIndex].nama);
                 }
-                cb.checked = false; // reset checklist
+                cb.checked = false; 
             });
 
             updateDashboard();
@@ -277,7 +305,6 @@
         function onScanSuccess(decodedText, decodedResult) {
             const id = decodedText.trim();
             const poinTambah = parseInt(document.getElementById('kegiatan-select').value);
-            const namaKegiatan = document.getElementById('kegiatan-select').options[document.getElementById('kegiatan-select').selectedIndex].text;
             
             const memberIndex = members.findIndex(m => m.id.toUpperCase() === id.toUpperCase());
             if(memberIndex !== -1) {
@@ -288,13 +315,13 @@
                 document.getElementById('scan-result').innerText = `✅ Terscan: ${members[memberIndex].nama} (+${poinTambah} Poin)`;
                 setTimeout(() => { document.getElementById('scan-result').innerText = ""; }, 3000);
             } else {
-                alert(`❌ GAGAL: Barcode dengan ID "${id}" tidak ditemukan di database.`);
+                alert(`❌ GAGAL: Barcode dengan ID "${id}" tidak ditemukan.`);
             }
         }
         const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
         html5QrcodeScanner.render(onScanSuccess);
 
-        // 5. FUNGSI IMPORT DATABASE (EXCEL/CSV)
+        // 5. FUNGSI IMPORT DATABASE (MENYESUAIKAN .CSV YNBDG)
         function importExcel(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -310,31 +337,22 @@
                     
                     if (jsonData.length === 0) throw new Error("File kosong");
 
-                    // Format data ke struktur lokal menyesuaikan format CSV YNBDG
                     let newMembers = [];
                     let errorRows = 0;
 
                     jsonData.forEach(row => {
-                        // 1. Ambil ID dari "Column 1"
                         let rawId = row['Column 1'] || row['ID'];
-                        if (!rawId) {
-                            errorRows++;
-                            return; // skip jika baris kosong / tidak valid
-                        }
+                        if (!rawId) { errorRows++; return; }
 
-                        // Format angka '1' menjadi 'M001' agar selaras untuk pembuatan barcode
                         let idFormatted = String(rawId).trim();
                         if (/^\d+$/.test(idFormatted)) {
                             idFormatted = 'M' + idFormatted.padStart(3, '0');
                         }
 
-                        // 2. Ambil Nama dari "Nama Lengkap"
                         let namaMember = row['Nama Lengkap'] || row['Nama'] || "Tanpa Nama";
-
-                        // 3. Tentukan Tipe Divisi / Non-Divisi dari "Homebase"
-                        let tipeMember = "Divisi"; // Default
-                        let homebase = String(row['Homebase'] || '').toLowerCase();
                         
+                        let tipeMember = "Divisi"; 
+                        let homebase = String(row['Homebase'] || '').toLowerCase();
                         if (homebase.includes('non-divisi') || homebase.includes('non divisi')) {
                             tipeMember = "Non-Divisi";
                         }
@@ -348,22 +366,19 @@
                         });
                     });
 
-                    if (newMembers.length === 0) {
-                        throw new Error("Format tidak sesuai. Pastikan ada 'Column 1', 'Nama Lengkap', dan 'Homebase'.");
-                    }
+                    if (newMembers.length === 0) throw new Error("Format tidak sesuai. Pastikan ada 'Column 1', 'Nama Lengkap', dan 'Homebase'.");
 
-                    // MENGGANTIKAN data lama di memori dengan database baru
                     members = newMembers;
                     updateDashboard();
                     
                     let alertMsg = `✅ Database berhasil diperbarui dengan ${members.length} member baru!\nData lama telah digantikan dan poin dimulai dari 0.`;
-                    if (errorRows > 0) alertMsg += `\n(Catatan: Ada ${errorRows} baris yang dilewati karena kosong/tidak punya ID)`;
+                    if (errorRows > 0) alertMsg += `\n(Ada ${errorRows} baris kosong yang dilewati)`;
                     alert(alertMsg);
 
                 } catch (error) {
                     alert("❌ Gagal mengimpor file: " + error.message);
                 }
-                event.target.value = ""; // Reset input file
+                event.target.value = ""; 
             };
             reader.readAsArrayBuffer(file);
         }
@@ -372,7 +387,6 @@
         function exportExcel() {
             if(members.length === 0) { alert("Tidak ada data untuk diunduh!"); return; }
             
-            // Siapkan data yang akan di-export (tanpa index internal)
             const exportData = members.map(m => ({
                 "ID Member": m.id,
                 "Nama Lengkap": m.nama,
@@ -389,11 +403,9 @@
 
         // 7. FUNGSI UNDUH PDF (SCREENSHOT)
         function exportPDF() {
-            // Scroll ke paling atas agar canvas tidak terpotong
             window.scrollTo(0,0); 
             const dashboard = document.getElementById('dashboard-content');
             
-            // Tombol diubah sementara agar menunjukkan indikator loading
             alert("Mempersiapkan PDF, mohon tunggu sebentar...");
             
             html2canvas(dashboard, { scale: 2 }).then(canvas => {
@@ -413,45 +425,11 @@
 
         // 8. FUNGSI RESET POIN KUARTIL
         function resetPoints() {
-            if(confirm("⚠️ PERINGATAN!\n\nApakah Anda yakin ingin me-reset SEMUA POIN dan KEHADIRAN menjadi 0?\n\n*Catatan: Nama dan ID Member tidak akan terhapus. Fitur ini digunakan hanya saat pergantian kuartil penilaian.")) {
-                members.forEach(m => {
-                    m.poin = 0;
-                    m.hadir = 0;
-                });
+            if(confirm("⚠️ PERINGATAN!\n\nApakah Anda yakin ingin me-reset SEMUA POIN dan KEHADIRAN menjadi 0?\n\n*Catatan: Nama dan ID Member tidak akan terhapus.")) {
+                members.forEach(m => { m.poin = 0; m.hadir = 0; });
                 updateDashboard();
                 alert("✅ Semua poin berhasil di-reset menjadi 0.");
             }
-        }
-
-        // CHART JS INITIALIZATION
-        let chartInstance = null;
-        function updateChart() {
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
-            // Menampilkan top 10 member di grafik agar tidak terlalu berdesakan jika data banyak
-            const topMembersForChart = [...members].sort((a,b) => b.hadir - a.hadir).slice(0,10);
-            
-            const labels = topMembersForChart.map(m => m.nama.split(' ')[0]);
-            const totalKegiatanAsumsi = 15; 
-            const dataPersen = topMembersForChart.map(m => Math.min(100, Math.round((m.hadir / totalKegiatanAsumsi) * 100))); 
-
-            if(chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Persentase Kehadiran (%)',
-                        data: dataPersen,
-                        backgroundColor: '#18BC9C',
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: { y: { beginAtZero: true, max: 100 } },
-                    plugins: { legend: { display: false } }
-                }
-            });
         }
 
         // Inisialisasi awal saat load
