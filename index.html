@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard MONEV YNBDG 2026-2027</title>
-    <!-- Pustaka External (Tanpa Chart.js karena sudah diganti Tabel) -->
+    <!-- Pustaka External -->
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -20,9 +20,6 @@
             --purple: #9B59B6;
             --light: #ECF0F1;
             --dark: #2C3E50;
-            --gold: #FFD700;
-            --silver: #C0C0C0;
-            --bronze: #CD7F32;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; color: #333; }
         .navbar { background-color: var(--primary); color: white; padding: 15px 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -42,7 +39,9 @@
         .btn-info { background: var(--info); }
         .btn-purple { background: var(--purple); }
         .btn-danger { background: var(--danger); }
-        select, input { padding: 10px; width: 100%; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        .btn-sm { padding: 8px 12px; font-size: 13px; margin-bottom: 0; }
+        select, input, textarea { padding: 10px; width: 100%; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; font-family: inherit; }
+        textarea { resize: vertical; }
         #reader { width: 100%; max-width: 400px; margin: auto; border: 2px dashed #ccc !important; border-radius: 8px; }
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
         .badge-divisi { background: #d1ecf1; color: #0c5460; }
@@ -114,7 +113,7 @@
                 </table>
             </div>
 
-            <!-- Leaderboard Persentase Card (Menggantikan Chart) -->
+            <!-- Leaderboard Persentase Card -->
             <div class="card" style="grid-column: span 1;">
                 <h3>📊 Top 10 Persentase Kehadiran</h3>
                 <table id="attendance-table">
@@ -141,6 +140,22 @@
                     <thead><tr><th>Nama</th><th>Poin Saat Ini</th><th>Kekurangan</th></tr></thead>
                     <tbody></tbody>
                 </table>
+            </div>
+
+            <!-- Fitur Baru: Catatan Agenda -->
+            <div class="card">
+                <h3>📝 Catatan Agenda Terdata</h3>
+                <p style="font-size:12px; color:gray; margin-top:-5px;">Daftar kegiatan yang sudah diinput ke sistem pada kuartil ini.</p>
+                
+                <textarea id="agenda-notes" rows="12" placeholder="Contoh:&#10;1. Kajian KEY9 (10 Agustus)&#10;2. Meetup YNBDG (15 Agustus)&#10;3. Olahraga Bareng (20 Agustus)..."></textarea>
+                
+                <div style="display:flex; gap:10px;" data-html2canvas-ignore="true">
+                    <button class="btn btn-sm" style="flex:1;" onclick="simpanAgenda()">💾 Simpan Catatan</button>
+                    <button class="btn btn-sm btn-danger" style="flex:1;" onclick="resetAgenda()">🗑️ Kosongkan</button>
+                </div>
+                <div id="agenda-status" style="font-size:12px; color:var(--secondary); font-weight:bold; margin-top:10px; text-align:center; display:none;">
+                    ✅ Catatan berhasil disimpan!
+                </div>
             </div>
         </div>
     </div>
@@ -174,7 +189,7 @@
 
         let members = JSON.parse(localStorage.getItem('ynbdg_members')) || defaultMembers;
 
-        // Inisialisasi Dropdown
+        // Inisialisasi Dropdown Kegiatan
         const select = document.getElementById('kegiatan-select');
         kegiatan.forEach(k => {
             const opt = document.createElement('option');
@@ -183,20 +198,40 @@
             select.appendChild(opt);
         });
 
+        // ==========================================
+        // FITUR BARU: CATATAN AGENDA
+        // ==========================================
+        const agendaTextArea = document.getElementById('agenda-notes');
+        
+        // Load catatan saat halaman dibuka
+        agendaTextArea.value = localStorage.getItem('ynbdg_agenda_notes') || "";
+
+        function simpanAgenda() {
+            localStorage.setItem('ynbdg_agenda_notes', agendaTextArea.value);
+            const statusMsg = document.getElementById('agenda-status');
+            statusMsg.style.display = 'block';
+            setTimeout(() => { statusMsg.style.display = 'none'; }, 3000);
+        }
+
+        function resetAgenda() {
+            if(confirm("Apakah Anda yakin ingin menghapus seluruh catatan agenda ini?")) {
+                agendaTextArea.value = "";
+                localStorage.removeItem('ynbdg_agenda_notes');
+            }
+        }
+        // ==========================================
+
         // 1. FUNGSI UPDATE DASHBOARD UTAMA
         function updateDashboard() {
-            // A. Update Top 10 Leaderboard (Berdasarkan Poin)
             const sortedByPoin = [...members].sort((a, b) => b.poin - a.poin);
             const tbodyLeader = document.querySelector('#leaderboard-table tbody');
             tbodyLeader.innerHTML = '';
             
             sortedByPoin.slice(0, 10).forEach((m, i) => {
                 const badgeClass = m.tipe === 'Divisi' ? 'badge-divisi' : 'badge-nondiv';
-                
                 let rankDisplay = i + 1;
                 let nameDisplay = m.nama;
 
-                // Modifikasi Top 3
                 if (i === 0) { rankDisplay = '🥇 1'; nameDisplay = `<strong>${m.nama}</strong>`; }
                 else if (i === 1) { rankDisplay = '🥈 2'; nameDisplay = `<strong>${m.nama}</strong>`; }
                 else if (i === 2) { rankDisplay = '🥉 3'; nameDisplay = `<strong>${m.nama}</strong>`; }
@@ -209,8 +244,7 @@
                 </tr>`;
             });
 
-            // B. Update Top 10 Persentase Kehadiran (Menggantikan Chart)
-            const totalKegiatanAsumsi = 15; // Asumsi 100% kehadiran = mengikuti 15 kegiatan
+            const totalKegiatanAsumsi = 15; 
             const sortedByHadir = [...members].sort((a, b) => b.hadir - a.hadir);
             const tbodyAttendance = document.querySelector('#attendance-table tbody');
             tbodyAttendance.innerHTML = '';
@@ -218,7 +252,6 @@
             sortedByHadir.slice(0, 10).forEach((m, i) => {
                 const persentase = Math.min(100, Math.round((m.hadir / totalKegiatanAsumsi) * 100));
                 const badgeClass = m.tipe === 'Divisi' ? 'badge-divisi' : 'badge-nondiv';
-                
                 let color = persentase >= 75 ? 'var(--secondary)' : (persentase >= 40 ? 'var(--warning)' : 'var(--danger)');
 
                 tbodyAttendance.innerHTML += `<tr>
@@ -229,7 +262,6 @@
                 </tr>`;
             });
 
-            // C. Update Evaluasi Divisi
             const tbodyDivisi = document.querySelector('#warning-divisi-table tbody');
             tbodyDivisi.innerHTML = '';
             members.filter(m => m.tipe === 'Divisi' && m.poin < 8).forEach(m => {
@@ -239,7 +271,6 @@
                 </tr>`;
             });
 
-            // D. Update Evaluasi Non-Divisi
             const tbodyNonDiv = document.querySelector('#warning-nondiv-table tbody');
             tbodyNonDiv.innerHTML = '';
             members.filter(m => m.tipe === 'Non-Divisi' && m.poin < 6).forEach(m => {
