@@ -14,27 +14,16 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         :root {
-            /* Background Gradient */
             --bg-gradient: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%);
-            
-            /* Card Backgrounds */
-            --card-bg: #1B2033; /* Dark blue/grey */
+            --card-bg: #1B2033;
             --card-bg-light: #242A45; 
-            
-            /* Accents from Reference */
-            --accent-blue: #00A3FF; /* Bright cyan/blue */
+            --accent-blue: #00A3FF;
             --accent-blue-gradient: linear-gradient(90deg, #00C6FF 0%, #0072FF 100%);
             --accent-orange: #FF8C00;
             --accent-red: #FF3B30;
-            
-            /* Text Colors */
             --text-main: #FFFFFF;
             --text-muted: #8E9BAE;
-            
-            /* Borders */
             --border-color: rgba(255, 255, 255, 0.05);
-            
-            /* Medals */
             --gold: #FFD700;
             --silver: #C0C0C0;
             --bronze: #CD7F32;
@@ -50,7 +39,6 @@
             min-height: 100vh;
         }
 
-        /* Navbar Styling */
         .navbar { 
             background: rgba(27, 32, 51, 0.8);
             backdrop-filter: blur(10px);
@@ -62,11 +50,9 @@
         .navbar h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;}
         .navbar p { margin: 5px 0 0; font-size: 14px; color: var(--accent-blue); font-weight: 500;}
 
-        /* Layout */
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
         
-        /* Card Styling */
         .card { 
             background: var(--card-bg); 
             padding: 24px; 
@@ -74,113 +60,45 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
             border: 1px solid var(--border-color);
         }
-        .card h3 { 
-            margin-top: 0; 
-            color: var(--text-main); 
-            border-bottom: 1px solid rgba(255,255,255,0.1); 
-            padding-bottom: 15px; 
-            font-size: 18px; 
-            font-weight: 600;
-        }
+        .card h3 { margin-top: 0; color: var(--text-main); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; font-size: 18px; font-weight: 600; }
 
-        /* Table Styling */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
         th, td { padding: 14px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
         th { color: var(--text-muted); font-weight: 500; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;}
         tr:last-child td { border-bottom: none; }
         
-        /* Text Status Colors */
         .danger { color: var(--accent-red); font-weight: 600; }
         .success { color: var(--accent-blue); font-weight: 600; }
         .muted-text { color: var(--text-muted); font-size: 12px;}
 
-        /* Button Styling */
         .btn { 
             background: var(--accent-blue-gradient); 
-            color: white; 
-            border: none; 
-            padding: 12px 20px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            width: 100%; 
-            font-size: 15px; 
-            font-weight: 600; 
-            transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s; 
-            margin-bottom: 10px;
-            box-shadow: 0 4px 15px rgba(0, 163, 255, 0.3);
+            color: white; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 15px; font-weight: 600; 
+            transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0, 163, 255, 0.3);
         }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 163, 255, 0.4);}
         .btn:active { transform: translateY(0); }
         
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--accent-blue);
-            color: var(--accent-blue);
-            box-shadow: none;
-        }
+        .btn-outline { background: transparent; border: 2px solid var(--accent-blue); color: var(--accent-blue); box-shadow: none; }
         .btn-outline:hover { background: rgba(0, 163, 255, 0.1); box-shadow: none;}
-
-        .btn-danger { 
-            background: transparent;
-            border: 2px solid var(--text-muted);
-            color: var(--text-muted);
-            box-shadow: none;
-        }
-        .btn-danger:hover {
-            border-color: var(--accent-red);
-            color: var(--accent-red);
-            background: rgba(255, 59, 48, 0.1);
-        }
+        .btn-danger { background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted); box-shadow: none; }
+        .btn-danger:hover { border-color: var(--accent-red); color: var(--accent-red); background: rgba(255, 59, 48, 0.1); }
         .btn-sm { padding: 10px 15px; font-size: 13px; margin-bottom: 0; }
 
-        /* Inputs & Textareas */
         select, input[type="text"], input[type="file"], textarea { 
-            background: var(--card-bg-light);
-            color: white;
-            padding: 12px 15px; 
-            width: 100%; 
-            margin-bottom: 15px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 12px; 
-            box-sizing: border-box; 
-            font-size: 14px; 
-            font-family: inherit; 
-            transition: border-color 0.3s;
+            background: var(--card-bg-light); color: white; padding: 12px 15px; width: 100%; margin-bottom: 15px; 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-sizing: border-box; font-size: 14px; font-family: inherit; transition: border-color 0.3s;
         }
-        select:focus, input[type="text"]:focus, textarea:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-        }
-        textarea { resize: vertical; }
+        select:focus, input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--accent-blue); }
         
-        /* Scanner Area */
-        #reader { 
-            width: 100%; 
-            max-width: 400px; 
-            margin: auto; 
-            border: 2px dashed rgba(255,255,255,0.2) !important; 
-            border-radius: 16px; 
-            overflow: hidden;
-            background: var(--card-bg-light);
-        }
+        #reader { width: 100%; max-width: 400px; margin: auto; border: 2px dashed rgba(255,255,255,0.2) !important; border-radius: 16px; overflow: hidden; background: var(--card-bg-light); }
         
-        /* Badges */
         .badge { padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
         .badge-divisi { background: rgba(0, 163, 255, 0.15); color: var(--accent-blue); border: 1px solid rgba(0, 163, 255, 0.3);}
         .badge-nondiv { background: rgba(255, 140, 0, 0.15); color: var(--accent-orange); border: 1px solid rgba(255, 140, 0, 0.3);}
         
-        /* Checklist Box */
-        .checklist-box { 
-            max-height: 160px; 
-            overflow-y: auto; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            padding: 15px; 
-            border-radius: 12px; 
-            background: var(--card-bg-light); 
-            margin-bottom: 15px; 
-        }
+        .checklist-box { max-height: 160px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; background: var(--card-bg-light); margin-bottom: 15px; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--card-bg); border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
@@ -188,22 +106,24 @@
 
         .checklist-item { margin-bottom: 12px; font-size: 14px; display: flex; align-items: center; cursor: pointer;}
         .checklist-item:last-child { margin-bottom: 0;}
-        .checklist-item input { 
-            width: 18px; 
-            height: 18px; 
-            margin: 0 12px 0 0; 
-            cursor: pointer; 
-            accent-color: var(--accent-blue);
-        }
+        .checklist-item input { width: 18px; height: 18px; margin: 0 12px 0 0; cursor: pointer; accent-color: var(--accent-blue); }
         
-        /* Custom file input wrapper */
-        .file-upload-wrapper {
-            background: var(--card-bg-light);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px dashed rgba(255,255,255,0.2);
-            margin-bottom: 15px;
-        }
+        .file-upload-wrapper { background: var(--card-bg-light); padding: 15px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.2); margin-bottom: 15px; }
+
+        /* Fitur Clickable Name & Modal Riwayat */
+        .clickable-name { cursor: pointer; transition: color 0.2s; position: relative; }
+        .clickable-name:hover { color: var(--accent-blue) !important; text-decoration: underline; }
+        
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); backdrop-filter: blur(5px); }
+        .modal-content { background-color: var(--card-bg); margin: 5% auto; padding: 25px; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; width: 90%; max-width: 500px; color: var(--text-main); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .close-btn { color: var(--text-muted); float: right; font-size: 28px; font-weight: bold; cursor: pointer; margin-top: -10px; }
+        .close-btn:hover { color: white; }
+        
+        .history-list { list-style: none; padding: 0; margin-top: 20px; max-height: 300px; overflow-y: auto; }
+        .history-item { background: var(--card-bg-light); margin-bottom: 10px; padding: 15px; border-radius: 12px; border-left: 4px solid var(--accent-blue); font-size: 14px; }
+        .history-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .history-agenda-name { font-weight: 600; font-size: 15px; color: var(--text-main); }
+        .history-points { color: var(--accent-blue); font-weight: bold; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -214,7 +134,6 @@
 
     <div class="container" id="dashboard-content">
         
-        <!-- Panel Admin: Manajemen Data -->
         <div class="card" style="margin-bottom: 24px;" data-html2canvas-ignore="true">
             <h3>⚙️ Pengaturan & Manajemen Data (Admin)</h3>
             <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;">
@@ -222,7 +141,9 @@
                 <div style="flex: 1; min-width: 250px;">
                     <label style="font-size:14px; font-weight:600; color:var(--text-main); display:block; margin-bottom:10px;">1. Update Database Kepengurusan (.csv)</label>
                     <div class="file-upload-wrapper">
-                        <input type="file" id="file-upload" accept=".xlsx, .csv, .xls" style="margin-bottom: 0; padding:0; border:none; background:transparent;">
+                        <input type="file" id="file-upload" accept=".xlsx, .csv, .xls" style="margin-bottom: 15px; padding:0; border:none; background:transparent;">
+                        <!-- Pembaruan 1: Tombol Upload Eksplisit -->
+                        <button class="btn btn-sm" onclick="prosesUploadDatabase()" style="width:100%;">📤 Upload & Simpan Database</button>
                     </div>
                     <p class="muted-text" style="margin-top:-5px;">Format header minimal: <b>Column 1, Nama Lengkap, Homebase</b>.</p>
                 </div>
@@ -239,11 +160,14 @@
         </div>
 
         <div class="grid">
-            <!-- Scanner & Input Card -->
             <div class="card" data-html2canvas-ignore="true">
                 <h3>📷 Input Kehadiran</h3>
                 
-                <label style="font-weight:600; font-size:14px; color:var(--text-muted); display:block; margin-bottom:8px;">Pilih Kegiatan Berjalan:</label>
+                <!-- Pembaruan 2: Kolom Nama Agenda Spesifik -->
+                <label style="font-weight:600; font-size:14px; color:var(--text-muted); display:block; margin-bottom:8px;">Nama Spesifik Agenda (Opsional):</label>
+                <input type="text" id="nama-agenda-input" placeholder="Contoh: Meetup YNBDG Agustus 2026">
+
+                <label style="font-weight:600; font-size:14px; color:var(--text-muted); display:block; margin-bottom:8px;">Pilih Kategori Bobot Poin:</label>
                 <select id="kegiatan-select"></select>
 
                 <div style="border-bottom: 1px solid rgba(255,255,255,0.05); margin: 24px 0;"></div>
@@ -257,21 +181,20 @@
                 <h4 style="margin:0 0 10px 0; color:var(--text-main); font-size: 15px; font-weight:600;">Opsi 2: Input Manual</h4>
                 <p class="muted-text" style="margin-top:-5px; margin-bottom:15px;">Centang maksimal 10 data sekaligus.</p>
                 <div class="checklist-box" id="manual-checklist">
-                    <!-- Checkbox member akan di-render di sini -->
+                    <!-- Checkbox member -->
                 </div>
                 <button class="btn" onclick="simpanKehadiranManual()">Simpan Kehadiran Manual</button>
             </div>
 
-            <!-- Leaderboard Poin Card -->
             <div class="card">
                 <h3>🏆 Top 10 Leaderboard</h3>
+                <p class="muted-text" style="margin-top:-10px;">Klik nama member untuk melihat riwayat.</p>
                 <table id="leaderboard-table">
                     <thead><tr><th>Rank</th><th>Nama</th><th>Tipe</th><th>Poin</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
 
-            <!-- Leaderboard Persentase Card -->
             <div class="card" style="grid-column: span 1;">
                 <h3>📊 Persentase Kehadiran</h3>
                 <table id="attendance-table">
@@ -280,7 +203,6 @@
                 </table>
             </div>
 
-            <!-- Warning Card: Divisi < 8 points -->
             <div class="card">
                 <h3>⚠️ Evaluasi Divisi (< 8 Poin)</h3>
                 <p class="muted-text" style="margin-top:-5px; margin-bottom:15px;">Follow Up Kadiv / Sekjen</p>
@@ -290,7 +212,6 @@
                 </table>
             </div>
 
-            <!-- Warning Card: Non-Divisi < 6 points -->
             <div class="card">
                 <h3>⚠️ Evaluasi Non-Divisi (< 6 Poin)</h3>
                 <p class="muted-text" style="margin-top:-5px; margin-bottom:15px;">Follow Up Komitmen</p>
@@ -299,8 +220,7 @@
                     <tbody></tbody>
                 </table>
             </div>
-
-            <!-- Fitur Baru: Catatan Agenda -->
+            
             <div class="card">
                 <h3>📝 Agenda Terdata</h3>
                 <p class="muted-text" style="margin-top:-5px; margin-bottom:15px;">Daftar kegiatan yang sudah diinput kuartil ini.</p>
@@ -318,8 +238,23 @@
         </div>
     </div>
 
+    <!-- Pembaruan 3: Modal Riwayat Member -->
+    <div id="member-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div style="border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px; margin-bottom:15px;">
+                <h2 id="modal-nama" style="margin:0 0 5px 0; color:var(--text-main);">Nama Member</h2>
+                <span id="modal-tipe" class="badge badge-divisi">Divisi</span>
+                <div id="modal-stats" style="margin-top:15px; font-size:14px; font-weight:600; color:var(--accent-blue);">Total Poin: 0 | Kehadiran: 0 kali</div>
+            </div>
+            <h4 style="margin:0 0 10px 0;">Riwayat Agenda Terikuti</h4>
+            <ul id="modal-history" class="history-list">
+                <!-- Riwayat di-render di sini -->
+            </ul>
+        </div>
+    </div>
+
     <script>
-        // Data Kegiatan
         const kegiatan = [
             { id: 1, nama: "Narasumber Kelas/Event", poin: 9 },
             { id: 2, nama: "Panitia KEY9", poin: 6 },
@@ -334,20 +269,19 @@
             { id: 11, nama: "Peserta Program Sport", poin: 1 }
         ];
 
-        // Default Data Simulasi
         const defaultMembers = [
-            { id: "M001", nama: "Alief Slamet", tipe: "Divisi", poin: 12, hadir: 4 },
-            { id: "M002", nama: "Bobi", tipe: "Divisi", poin: 4, hadir: 2 },
-            { id: "M003", nama: "Cahyo", tipe: "Divisi", poin: 7, hadir: 3 },
-            { id: "M004", nama: "Deni", tipe: "Non-Divisi", poin: 9, hadir: 5 },
-            { id: "M005", nama: "Eko", tipe: "Non-Divisi", poin: 3, hadir: 1 },
-            { id: "M006", nama: "Fajar", tipe: "Non-Divisi", poin: 5, hadir: 2 },
-            { id: "M007", nama: "Ghilman", tipe: "Divisi", poin: 10, hadir: 4 }
+            { id: "M001", nama: "Alief Slamet", tipe: "Divisi", poin: 12, hadir: 4, history: [] },
+            { id: "M002", nama: "Bobi", tipe: "Divisi", poin: 4, hadir: 2, history: [] },
+            { id: "M003", nama: "Cahyo", tipe: "Divisi", poin: 7, hadir: 3, history: [] },
+            { id: "M004", nama: "Deni", tipe: "Non-Divisi", poin: 9, hadir: 5, history: [] },
+            { id: "M005", nama: "Eko", tipe: "Non-Divisi", poin: 3, hadir: 1, history: [] },
+            { id: "M006", nama: "Fajar", tipe: "Non-Divisi", poin: 5, hadir: 2, history: [] },
+            { id: "M007", nama: "Ghilman", tipe: "Divisi", poin: 10, hadir: 4, history: [] }
         ];
 
         let members = JSON.parse(localStorage.getItem('ynbdg_members')) || defaultMembers;
+        members.forEach(m => { if(!m.history) m.history = []; });
 
-        // Inisialisasi Dropdown Kegiatan
         const select = document.getElementById('kegiatan-select');
         kegiatan.forEach(k => {
             const opt = document.createElement('option');
@@ -356,17 +290,14 @@
             select.appendChild(opt);
         });
 
-        // CATATAN AGENDA
         const agendaTextArea = document.getElementById('agenda-notes');
         agendaTextArea.value = localStorage.getItem('ynbdg_agenda_notes') || "";
-
         function simpanAgenda() {
             localStorage.setItem('ynbdg_agenda_notes', agendaTextArea.value);
             const statusMsg = document.getElementById('agenda-status');
             statusMsg.style.display = 'block';
             setTimeout(() => { statusMsg.style.display = 'none'; }, 3000);
         }
-
         function resetAgenda() {
             if(confirm("Hapus seluruh catatan agenda?")) {
                 agendaTextArea.value = "";
@@ -374,7 +305,54 @@
             }
         }
 
-        // UPDATE DASHBOARD
+        // ==========================================
+        // FUNGSI MODAL RIWAYAT
+        // ==========================================
+        function openModal(id) {
+            const m = members.find(x => x.id === id);
+            if(!m) return;
+            
+            document.getElementById('modal-nama').innerText = m.nama;
+            document.getElementById('modal-tipe').innerText = m.tipe;
+            document.getElementById('modal-tipe').className = m.tipe === 'Divisi' ? 'badge badge-divisi' : 'badge badge-nondiv';
+            document.getElementById('modal-stats').innerText = `Total Poin: ${m.poin} | Kehadiran: ${m.hadir} kali`;
+            
+            const historyList = document.getElementById('modal-history');
+            historyList.innerHTML = '';
+            
+            if(m.history && m.history.length > 0) {
+                const reversedHistory = [...m.history].reverse();
+                reversedHistory.forEach(h => {
+                    historyList.innerHTML += `
+                        <li class="history-item">
+                            <div class="history-item-header">
+                                <span class="history-agenda-name">${h.agenda}</span>
+                                <span class="history-points">+${h.poin}</span>
+                            </div>
+                            <div style="color:var(--text-muted); font-size:12px;">
+                                <span>Kategori: ${h.kategori}</span><br>
+                                <span>Tanggal Input: ${h.tanggal}</span>
+                            </div>
+                        </li>`;
+                });
+            } else {
+                historyList.innerHTML = '<li style="color:var(--text-muted); text-align:center; padding:20px;">Belum ada riwayat agenda yang diikuti.</li>';
+            }
+            
+            document.getElementById('member-modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('member-modal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('member-modal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
         function updateDashboard() {
             const sortedByPoin = [...members].sort((a, b) => b.poin - a.poin);
             const tbodyLeader = document.querySelector('#leaderboard-table tbody');
@@ -383,11 +361,11 @@
             sortedByPoin.slice(0, 10).forEach((m, i) => {
                 const badgeClass = m.tipe === 'Divisi' ? 'badge-divisi' : 'badge-nondiv';
                 let rankDisplay = `<span style="color:var(--text-muted)">${i + 1}</span>`;
-                let nameDisplay = m.nama;
+                let nameDisplay = `<span class="clickable-name" onclick="openModal('${m.id}')">${m.nama}</span>`;
 
-                if (i === 0) { rankDisplay = '🥇'; nameDisplay = `<span style="color:white; font-weight:600;">${m.nama}</span>`; }
-                else if (i === 1) { rankDisplay = '🥈'; nameDisplay = `<span style="color:white; font-weight:600;">${m.nama}</span>`; }
-                else if (i === 2) { rankDisplay = '🥉'; nameDisplay = `<span style="color:white; font-weight:600;">${m.nama}</span>`; }
+                if (i === 0) { rankDisplay = '🥇'; nameDisplay = `<span class="clickable-name" onclick="openModal('${m.id}')" style="color:white; font-weight:600;">${m.nama}</span>`; }
+                else if (i === 1) { rankDisplay = '🥈'; nameDisplay = `<span class="clickable-name" onclick="openModal('${m.id}')" style="color:white; font-weight:600;">${m.nama}</span>`; }
+                else if (i === 2) { rankDisplay = '🥉'; nameDisplay = `<span class="clickable-name" onclick="openModal('${m.id}')" style="color:white; font-weight:600;">${m.nama}</span>`; }
 
                 tbodyLeader.innerHTML += `<tr>
                     <td style="text-align:center;">${rankDisplay}</td>
@@ -405,13 +383,11 @@
             sortedByHadir.slice(0, 10).forEach((m, i) => {
                 const persentase = Math.min(100, Math.round((m.hadir / totalKegiatanAsumsi) * 100));
                 const badgeClass = m.tipe === 'Divisi' ? 'badge-divisi' : 'badge-nondiv';
-                
-                // Color logic adapted for dark theme
                 let color = persentase >= 75 ? 'var(--accent-blue)' : (persentase >= 40 ? 'var(--accent-orange)' : 'var(--accent-red)');
 
                 tbodyAttendance.innerHTML += `<tr>
                     <td style="text-align:center; color:var(--text-muted);">${i + 1}</td>
-                    <td>${m.nama}</td>
+                    <td><span class="clickable-name" onclick="openModal('${m.id}')">${m.nama}</span></td>
                     <td><span class="badge ${badgeClass}">${m.tipe}</span></td>
                     <td style="font-weight:600; color:${color};">${persentase}%</td>
                 </tr>`;
@@ -421,7 +397,8 @@
             tbodyDivisi.innerHTML = '';
             members.filter(m => m.tipe === 'Divisi' && m.poin < 8).forEach(m => {
                 tbodyDivisi.innerHTML += `<tr>
-                    <td>${m.nama}</td><td class="danger">${m.poin}</td>
+                    <td><span class="clickable-name" onclick="openModal('${m.id}')">${m.nama}</span></td>
+                    <td class="danger">${m.poin}</td>
                     <td class="muted-text">Kurang ${8 - m.poin}</td>
                 </tr>`;
             });
@@ -430,7 +407,8 @@
             tbodyNonDiv.innerHTML = '';
             members.filter(m => m.tipe === 'Non-Divisi' && m.poin < 6).forEach(m => {
                 tbodyNonDiv.innerHTML += `<tr>
-                    <td>${m.nama}</td><td class="danger">${m.poin}</td>
+                    <td><span class="clickable-name" onclick="openModal('${m.id}')">${m.nama}</span></td>
+                    <td class="danger">${m.poin}</td>
                     <td class="muted-text">Kurang ${6 - m.poin}</td>
                 </tr>`;
             });
@@ -439,11 +417,9 @@
             localStorage.setItem('ynbdg_members', JSON.stringify(members));
         }
 
-        // RENDER CHECKLIST
         function renderChecklist() {
             const container = document.getElementById('manual-checklist');
             container.innerHTML = '';
-            
             const sortedMembers = [...members].sort((a,b) => a.nama.localeCompare(b.nama));
             sortedMembers.forEach(m => {
                 const label = document.createElement('label');
@@ -464,45 +440,57 @@
             });
         }
 
-        // SIMPAN KEHADIRAN MANUAL
+        function catatRiwayatKehadiran(memberIndex, poinTambah, namaKategori) {
+            let agendaSpesifik = document.getElementById('nama-agenda-input').value.trim();
+            if (!agendaSpesifik) { agendaSpesifik = namaKategori; }
+            
+            const todayDate = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'});
+            
+            members[memberIndex].poin += poinTambah;
+            members[memberIndex].hadir += 1;
+            members[memberIndex].history.push({
+                agenda: agendaSpesifik,
+                kategori: namaKategori,
+                poin: poinTambah,
+                tanggal: todayDate
+            });
+        }
+
         function simpanKehadiranManual() {
             const checkedBoxes = document.querySelectorAll('.cb-member:checked');
             if (checkedBoxes.length === 0) { alert("Pilih minimal 1 member dari daftar!"); return; }
 
             const poinTambah = parseInt(document.getElementById('kegiatan-select').value);
-            const namaKegiatan = document.getElementById('kegiatan-select').options[document.getElementById('kegiatan-select').selectedIndex].text;
+            const namaKategori = document.getElementById('kegiatan-select').options[document.getElementById('kegiatan-select').selectedIndex].text;
             
             let successNames = [];
             checkedBoxes.forEach(cb => {
                 const memberIndex = members.findIndex(m => m.id === cb.value);
                 if(memberIndex !== -1) {
-                    members[memberIndex].poin += poinTambah;
-                    members[memberIndex].hadir += 1;
+                    catatRiwayatKehadiran(memberIndex, poinTambah, namaKategori);
                     successNames.push(members[memberIndex].nama);
                 }
                 cb.checked = false; 
             });
 
             updateDashboard();
+            let agendaTampil = document.getElementById('nama-agenda-input').value.trim() || namaKategori;
             alert(`✅ BERHASIL!
-Kegiatan: ${namaKegiatan}
+Agenda: ${agendaTampil}
 
 Poin berhasil ditambahkan untuk ${successNames.length} member:
-- ${successNames.join('
-- ')}`);
+- ${successNames.join('\n- ')}`);
         }
 
-        // SIMPAN KEHADIRAN SCANNER
         function onScanSuccess(decodedText, decodedResult) {
             const id = decodedText.trim();
             const poinTambah = parseInt(document.getElementById('kegiatan-select').value);
+            const namaKategori = document.getElementById('kegiatan-select').options[document.getElementById('kegiatan-select').selectedIndex].text;
             
             const memberIndex = members.findIndex(m => m.id.toUpperCase() === id.toUpperCase());
             if(memberIndex !== -1) {
-                members[memberIndex].poin += poinTambah;
-                members[memberIndex].hadir += 1;
+                catatRiwayatKehadiran(memberIndex, poinTambah, namaKategori);
                 updateDashboard();
-                
                 document.getElementById('scan-result').innerText = `✅ ${members[memberIndex].nama} (+${poinTambah} Poin)`;
                 setTimeout(() => { document.getElementById('scan-result').innerText = ""; }, 4000);
             } else {
@@ -510,15 +498,20 @@ Poin berhasil ditambahkan untuk ${successNames.length} member:
             }
         }
         
-        // Handling Html5QrcodeScanner with dark theme style considerations isn't directly possible via JS config for this specific library's UI,
-        // but the CSS above overrides the #reader container to match.
         const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
         html5QrcodeScanner.render(onScanSuccess);
 
-        // IMPORT DATABASE CSV
-        function importExcel(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        // ==========================================
+        // PEMBARUAN 1: TOMBOL UPLOAD EKSPLISIT
+        // ==========================================
+        function prosesUploadDatabase() {
+            const fileInput = document.getElementById('file-upload');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert("Pilih file CSV terlebih dahulu!");
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -556,33 +549,30 @@ Poin berhasil ditambahkan untuk ${successNames.length} member:
                             nama: namaMember,
                             tipe: tipeMember,
                             poin: 0,
-                            hadir: 0
+                            hadir: 0,
+                            history: [] // Menyiapkan array riwayat kosong
                         });
                     });
 
-                    if (newMembers.length === 0) throw new Error("Format tidak sesuai. Pastikan ada 'Column 1', 'Nama Lengkap', dan 'Homebase'.");
+                    if (newMembers.length === 0) throw new Error("Format tidak sesuai.");
 
                     members = newMembers;
                     updateDashboard();
                     
-                    let alertMsg = `✅ Database berhasil diperbarui dengan ${members.length} member baru!
-Data lama telah digantikan dan poin dimulai dari 0.`;
-                    if (errorRows > 0) alertMsg += `
-(Ada ${errorRows} baris kosong yang dilewati)`;
+                    let alertMsg = `✅ Database diperbarui dengan ${members.length} member baru!
+Data lama digantikan dan poin direset.`;
                     alert(alertMsg);
 
                 } catch (error) {
                     alert("❌ Gagal mengimpor file: " + error.message);
                 }
-                event.target.value = ""; 
+                fileInput.value = ""; 
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // EXPORT REKAP
         function exportExcel() {
             if(members.length === 0) { alert("Tidak ada data untuk diunduh!"); return; }
-            
             const exportData = members.map(m => ({
                 "ID Member": m.id,
                 "Nama Lengkap": m.nama,
@@ -590,52 +580,37 @@ Data lama telah digantikan dan poin dimulai dari 0.`;
                 "Total Kehadiran": m.hadir,
                 "Total Poin Kuartil": m.poin
             }));
-
             const ws = XLSX.utils.json_to_sheet(exportData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Rekap MONEV");
             XLSX.writeFile(wb, "Rekap_Data_MONEV_YNBDG.xlsx");
         }
 
-        // UNDUH PDF
         function exportPDF() {
             window.scrollTo(0,0); 
             const dashboard = document.getElementById('dashboard-content');
-            
-            // Adjust body background temporarily for clean PDF export if needed, 
-            // though html2canvas usually handles backgrounds okay. We'll leave it as is.
             alert("Mempersiapkan PDF, mohon tunggu sebentar...");
-            
-            html2canvas(dashboard, { 
-                scale: 2,
-                backgroundColor: '#16213E' // Match gradient center roughly for PDF bg
-            }).then(canvas => {
+            html2canvas(dashboard, { scale: 2, backgroundColor: '#16213E' }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
-                
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                
                 pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
                 pdf.save("Laporan_Dashboard_MONEV.pdf");
-            }).catch(err => {
-                alert("Gagal membuat PDF: " + err);
-            });
+            }).catch(err => { alert("Gagal membuat PDF: " + err); });
         }
 
-        // RESET POIN
         function resetPoints() {
             if(confirm("⚠️ PERINGATAN!
 
-Apakah Anda yakin ingin me-reset SEMUA POIN dan KEHADIRAN menjadi 0?")) {
-                members.forEach(m => { m.poin = 0; m.hadir = 0; });
+Apakah Anda yakin ingin me-reset SEMUA POIN dan KEHADIRAN menjadi 0? (Riwayat akan ikut terhapus)")) {
+                members.forEach(m => { m.poin = 0; m.hadir = 0; m.history = []; });
                 updateDashboard();
-                alert("✅ Semua poin berhasil di-reset menjadi 0.");
+                alert("✅ Semua poin dan riwayat berhasil di-reset.");
             }
         }
 
-        // Inisialisasi
         updateDashboard();
     </script>
 </body>
