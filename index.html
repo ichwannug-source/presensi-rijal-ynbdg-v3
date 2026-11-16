@@ -142,7 +142,6 @@
                     <label style="font-size:14px; font-weight:600; color:var(--text-main); display:block; margin-bottom:10px;">1. Update Database Kepengurusan (.csv)</label>
                     <div class="file-upload-wrapper">
                         <input type="file" id="file-upload" accept=".xlsx, .csv, .xls" style="margin-bottom: 15px; padding:0; border:none; background:transparent;">
-                        <!-- Pembaruan 1: Tombol Upload Eksplisit -->
                         <button class="btn btn-sm" onclick="prosesUploadDatabase()" style="width:100%;">📤 Upload & Simpan Database</button>
                     </div>
                     <p class="muted-text" style="margin-top:-5px;">Format header minimal: <b>Column 1, Nama Lengkap, Homebase</b>.</p>
@@ -163,7 +162,6 @@
             <div class="card" data-html2canvas-ignore="true">
                 <h3>📷 Input Kehadiran</h3>
                 
-                <!-- Pembaruan 2: Kolom Nama Agenda Spesifik -->
                 <label style="font-weight:600; font-size:14px; color:var(--text-muted); display:block; margin-bottom:8px;">Nama Spesifik Agenda (Opsional):</label>
                 <input type="text" id="nama-agenda-input" placeholder="Contoh: Meetup YNBDG Agustus 2026">
 
@@ -238,7 +236,7 @@
         </div>
     </div>
 
-    <!-- Pembaruan 3: Modal Riwayat Member -->
+    <!-- Modal Riwayat Member -->
     <div id="member-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
@@ -292,12 +290,14 @@
 
         const agendaTextArea = document.getElementById('agenda-notes');
         agendaTextArea.value = localStorage.getItem('ynbdg_agenda_notes') || "";
+        
         function simpanAgenda() {
             localStorage.setItem('ynbdg_agenda_notes', agendaTextArea.value);
             const statusMsg = document.getElementById('agenda-status');
             statusMsg.style.display = 'block';
             setTimeout(() => { statusMsg.style.display = 'none'; }, 3000);
         }
+        
         function resetAgenda() {
             if(confirm("Hapus seluruh catatan agenda?")) {
                 agendaTextArea.value = "";
@@ -305,9 +305,6 @@
             }
         }
 
-        // ==========================================
-        // FUNGSI MODAL RIWAYAT
-        // ==========================================
         function openModal(id) {
             const m = members.find(x => x.id === id);
             if(!m) return;
@@ -475,11 +472,7 @@
 
             updateDashboard();
             let agendaTampil = document.getElementById('nama-agenda-input').value.trim() || namaKategori;
-            alert(`✅ BERHASIL!
-Agenda: ${agendaTampil}
-
-Poin berhasil ditambahkan untuk ${successNames.length} member:
-- ${successNames.join('\n- ')}`);
+            alert(`✅ BERHASIL!\nAgenda: ${agendaTampil}\n\nPoin berhasil ditambahkan untuk ${successNames.length} member:\n- ${successNames.join('\n- ')}`);
         }
 
         function onScanSuccess(decodedText, decodedResult) {
@@ -501,9 +494,6 @@ Poin berhasil ditambahkan untuk ${successNames.length} member:
         const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
         html5QrcodeScanner.render(onScanSuccess);
 
-        // ==========================================
-        // PEMBARUAN 1: TOMBOL UPLOAD EKSPLISIT
-        // ==========================================
         function prosesUploadDatabase() {
             const fileInput = document.getElementById('file-upload');
             const file = fileInput.files[0];
@@ -550,7 +540,7 @@ Poin berhasil ditambahkan untuk ${successNames.length} member:
                             tipe: tipeMember,
                             poin: 0,
                             hadir: 0,
-                            history: [] // Menyiapkan array riwayat kosong
+                            history: [] 
                         });
                     });
 
@@ -559,8 +549,7 @@ Poin berhasil ditambahkan untuk ${successNames.length} member:
                     members = newMembers;
                     updateDashboard();
                     
-                    let alertMsg = `✅ Database diperbarui dengan ${members.length} member baru!
-Data lama digantikan dan poin direset.`;
+                    let alertMsg = `✅ Database diperbarui dengan ${members.length} member baru!\nData lama digantikan dan poin direset.`;
                     alert(alertMsg);
 
                 } catch (error) {
@@ -602,9 +591,7 @@ Data lama digantikan dan poin direset.`;
         }
 
         function resetPoints() {
-            if(confirm("⚠️ PERINGATAN!
-
-Apakah Anda yakin ingin me-reset SEMUA POIN dan KEHADIRAN menjadi 0? (Riwayat akan ikut terhapus)")) {
+            if(confirm("⚠️ PERINGATAN!\n\nApakah Anda yakin ingin me-reset SEMUA POIN dan KEHADIRAN menjadi 0? (Riwayat akan ikut terhapus)")) {
                 members.forEach(m => { m.poin = 0; m.hadir = 0; m.history = []; });
                 updateDashboard();
                 alert("✅ Semua poin dan riwayat berhasil di-reset.");
